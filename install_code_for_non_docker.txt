@@ -1,0 +1,70 @@
+sudo apt update
+sudo apt install build-essential cmake libcurl4-openssl-dev m4 zlib1g-dev libssl-dev gfortran libnetcdff-dev
+
+sudo apt install libopenmpi-dev openmpi-bin
+
+# Download HDF5 source
+wget https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.5/hdf5-1.14.5.tar.gz
+tar -xzf hdf5-1.14.5.tar.gz
+cd hdf5-1.14.5
+
+# Configure with parallel support and gfortran
+./configure --enable-parallel --prefix=/usr/local/hdf5-parallel --enable-shared --with-zlib --with-default-api-version=v18 CC=mpicc FC=gfortran
+
+# Build and install
+make -j4
+sudo make install
+
+# Install netCDF C library with parallel enabled
+wget https://downloads.unidata.ucar.edu/netcdf-c/4.9.2/netcdf-c-4.9.2.tar.gz
+tar -xzf netcdf-c-4.9.2.tar.gz
+cd netcdf-c-4.9.2
+
+# Configure with parallel support and HDF5 location
+CPPFLAGS=-I/usr/local/hdf5-parallel/include LDFLAGS=-L/usr/local/hdf5-parallel/lib ./configure --enable-parallel-tests --enable-netcdf-4 --prefix=/usr/local/netcdf-parallel CC=mpicc FC=gfortran
+
+# Build and install
+make -j4
+sudo make install
+
+# Download netCDF-Fortran source
+wget https://downloads.unidata.ucar.edu/netcdf-fortran/4.6.1/netcdf-fortran-4.6.1.tar.gz
+tar -xzf netcdf-fortran-4.6.1.tar.gz
+cd netcdf-fortran-4.6.1
+
+# Configure with MPI and gfortran, linking to netCDF-C and HDF5
+CPPFLAGS=-I/usr/local/netcdf-parallel/include LDFLAGS=-L/usr/local/netcdf-parallel/lib ./configure --prefix=/usr/local/netcdf-fortran-parallel --enable-parallel-tests CC=mpicc FC=gfortran
+
+# Build and install
+make -j4
+sudo make install
+
+# Download FFTW source
+wget https://www.fftw.org/fftw-3.3.10.tar.gz
+tar -xzf fftw-3.3.10.tar.gz
+cd fftw-3.3.10
+
+# Configure with MPI support
+./configure --enable-mpi --prefix=/usr/local/fftw3-parallel CC=mpicc FC=gfortran
+
+# Build and install
+make -j4
+sudo make install
+
+# Add these to ~/.bashrc or ~/.zshrc
+export CPATH=/usr/local/netcdf-fortran-parallel/include:$CPATH
+export PATH=/usr/local/netcdf-fortran-parallel/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/netcdf-fortran-parallel/lib:$LD_LIBRARY_PATH
+
+export PATH=/usr/local/hdf5-parallel/bin:/usr/local/netcdf-parallel/bin:/usr/local/fftw3-parallel/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/hdf5-parallel/lib:/usr/local/netcdf-parallel/lib:/usr/local/fftw3-parallel/lib:$LD_LIBRARY_PATH
+
+export GK_SYSTEM=gnu_ubuntu
+
+# Refresh the terminal environment
+source ~/.bashrc
+
+mpirun --version        # Check OpenMPI installation
+h5pcc -showconfig       # Check HDF5 parallel installation
+nc-config --all         # Check netCDF installation
+nf-config --all         # Check netCDF-Fortran installation

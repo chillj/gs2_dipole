@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     liblapack64-dev \
     libfftw3-dev \
     libfftw3-mpi-dev \
+    libnetcdff-dev \
     netcdf-bin \
     m4 \
     make \
@@ -103,19 +104,12 @@ RUN git clone --recurse-submodules https://bitbucket.org/gyrokinetics/gs2.git
 
 # Configure and build GS2
 WORKDIR /opt/gs2
-ENV GK_SYSTEM=gnu-gfortran
+ENV GK_SYSTEM=gnu_ubuntu
 
-# Find netcdf.mod location
-RUN find /usr -name "netcdf.mod" | xargs dirname > netcdf_mod_path.txt
-
-# Build GS2
+# Build GS2. For some reason only way to get netcdf.mod to work is to copy directly to compile folder
 RUN mkdir -p ~/.local/gs2 && \
     cp Makefiles/Makefile.$GK_SYSTEM ~/.local/gs2/Makefile && \
-    if [ ! -e /usr/include/fftw3.f03 ]; then \
-        find /usr -name fftw3.f03 -exec ln -s {} /usr/include/fftw3.f03 \; ; \
-    fi && \
-    NETCDF_MOD_DIR=$(cat netcdf_mod_path.txt) && \
-    FFLAGS="-I${NETCDF_MOD_DIR} -I/usr/include $(nc-config --fflags)" \
+    cp /usr/include/netcdf.mod . && \
     make -I Makefiles
 
 # Add GS2 to PATH
