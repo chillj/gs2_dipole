@@ -1,0 +1,9 @@
+services:
+  gs2:
+    build: .
+    volumes:
+      - ./simulations/inputs:/app/simulations/inputs
+      - ./simulations/outputs:/app/simulations/outputs
+    working_dir: /app/simulations
+    stdin_open: true  # Keep STDIN open
+    tty: true         # Allocate a pseudo-TTY

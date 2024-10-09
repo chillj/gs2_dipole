@@ -1,0 +1,100 @@
+&kt_grids_knobs
+  grid_option = "single"
+/
+
+&kt_grids_single_parameters
+  aky = 0.6
+/
+
+&physics_flags
+  full_flux_surface = .false.
+  nonlinear = .false.
+/
+
+&knobs
+  fphi = 1.0
+  fapar = 0.0
+  fbpar = 0.0
+  beta = 0.0
+  zeff = 1.0
+/
+
+&theta_grid_parameters
+  ntheta = 32
+  nperiod = 2
+/
+
+&theta_grid_knobs
+  equilibrium_option = "default"
+/
+
+&theta_grid_eik_knobs
+  local_eq = .true.
+/
+
+&le_grids_knobs
+  ngauss = 5
+  negrid = 16
+/
+
+&dist_fn_knobs
+  adiabatic_option = "iphi00=2"
+/
+
+&fields_knobs
+  field_option = "implicit"
+/
+
+&species_knobs
+  nspec = 2
+/
+
+&species_parameters_1
+  z = 1.0
+  mass = 1.0
+  dens = 1.0
+  temp = 1.0
+  tprim = 6.9
+  fprim = 2.2
+  uprim = 0.0
+  vnewk = 0.01
+  type = "ion"
+/
+
+&species_parameters_2
+  z = -1.0
+  mass = 0.000544617
+  dens = 1.0
+  temp = 1.0
+  tprim = 6.9
+  fprim = 2.2
+  uprim = 0.0
+  vnewk = 0.01
+  type = "electron"
+/
+
+&dist_fn_species_knobs_1
+  fexpr = 0.48
+  bakdif = 0.05
+/
+
+&dist_fn_species_knobs_2
+  fexpr = 0.48
+  bakdif = 0.05
+/
+
+&init_g_knobs
+  chop_side = .false.
+  phiinit = 0.001
+  restart_file = "nc/example.nc"
+  ginit_option = "noise"
+/
+
+&diagnostics_config
+  nwrite = 50
+  nsave = 100
+  save_for_restart = .true.
+  write_fields = .true.
+  write_moments = .true.
+  write_phi_over_time = .true.
+/
